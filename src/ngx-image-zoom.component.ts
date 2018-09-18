@@ -5,6 +5,9 @@ export interface Coord {
     y: number;
 }
 
+export type ValidZoomMode =
+    'hover' | 'toggle' | 'click' | 'hover-freeze' | 'hover-click';
+
 @Component({
     selector: 'ngx-image-zoom',
     templateUrl: './ngx-image-zoom.component.html',
@@ -12,7 +15,7 @@ export interface Coord {
 })
 export class NgxImageZoomComponent implements OnInit, OnChanges, AfterViewInit {
 
-    private static readonly validZoomModes: string[] = ['hover', 'toggle', 'click', 'hover-freeze'];
+    private static readonly validZoomModes: ValidZoomMode[] = ['hover', 'toggle', 'click', 'hover-freeze', 'hover-click'];
 
     @ViewChild('zoomContainer') zoomContainer: ElementRef;
     @ViewChild('imageThumbnail') imageThumbnail: ElementRef;
@@ -40,7 +43,7 @@ export class NgxImageZoomComponent implements OnInit, OnChanges, AfterViewInit {
     public lensWidth = 100;
     public lensHeight = 100;
 
-    private zoomMode = 'hover';
+    private zoomMode: ValidZoomMode = 'hover';
     private magnification = 1;
     private enableScrollZoom = false;
     private scrollStepSize = 0.1;
@@ -82,7 +85,7 @@ export class NgxImageZoomComponent implements OnInit, OnChanges, AfterViewInit {
     }
 
     @Input('zoomMode')
-    public set setZoomMode(zoomMode: string) {
+    public set setZoomMode(zoomMode: ValidZoomMode) {
         if (NgxImageZoomComponent.validZoomModes.some(m => m === zoomMode)) {
             this.zoomMode = zoomMode;
         }
@@ -156,7 +159,13 @@ export class NgxImageZoomComponent implements OnInit, OnChanges, AfterViewInit {
             this.renderer.listen(this.zoomContainer.nativeElement, 'mouseleave', () => this.hoverFreezeMouseLeave());
             this.renderer.listen(this.zoomContainer.nativeElement, 'mousemove', (event) => this.hoverFreezeMouseMove(event));
             this.renderer.listen(this.zoomContainer.nativeElement, 'click', (event) => this.hoverFreezeClick(event));
+        } else if (this.zoomMode === 'hover-click') {
+            this.renderer.listen(this.zoomContainer.nativeElement, 'mouseenter', (event) => this.hoverClickMouseEnter(event));
+             this.renderer.listen(this.zoomContainer.nativeElement, 'mouseleave', (event) => this.hoverClickMouseLeave(event));
+            this.renderer.listen(this.zoomContainer.nativeElement, 'mousemove', (event) => this.hoverClickMouseMove(event));
+            this.renderer.listen(this.zoomContainer.nativeElement, 'click', (event) => this.hoverClickMouseClick(event));
         }
+
         if (this.enableScrollZoom) {
             // Chrome: 'mousewheel', Firefox: 'DOMMouseScroll', IE: 'onmousewheel'
             this.renderer.listen(this.zoomContainer.nativeElement, 'mousewheel', (event) => this.onMouseWheel(event));
@@ -323,6 +332,31 @@ export class NgxImageZoomComponent implements OnInit, OnChanges, AfterViewInit {
             this.zoomingEnabled = true;
             this.zoomOn(event);
         }
+    }
+
+    /**
+     * Hover click mode
+     */
+    private hoverClickMouseEnter(event: MouseEvent) {
+        if (!this.zoomFrozen) {
+            this.zoomOn(event);
+        }
+    }
+
+    private hoverClickMouseLeave(event: MouseEvent) {
+        if (!this.zoomFrozen) {
+            this.zoomOff();
+        }
+    }
+
+    private hoverClickMouseMove(event: MouseEvent) {
+        if (!this.zoomFrozen) {
+            this.calculateZoomPosition(event);
+        }
+    }
+
+    private hoverClickMouseClick(event: MouseEvent) {
+        this.zoomFrozen = !this.zoomFrozen;
     }
 
     /**
