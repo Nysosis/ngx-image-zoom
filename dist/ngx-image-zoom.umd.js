@@ -217,6 +217,12 @@ var NgxImageZoomComponent = (function () {
             this.renderer.listen(this.zoomContainer.nativeElement, 'mousemove', function (event) { return _this.hoverClickMouseMove(event); });
             this.renderer.listen(this.zoomContainer.nativeElement, 'click', function (event) { return _this.hoverClickMouseClick(event); });
         }
+        else if (this.zoomMode === 'tri-click') {
+            this.renderer.listen(this.zoomContainer.nativeElement, 'mouseenter', function (event) { return _this.triClickMouseEnter(event); });
+            this.renderer.listen(this.zoomContainer.nativeElement, 'mouseleave', function () { return _this.triClickMouseLeave(); });
+            this.renderer.listen(this.zoomContainer.nativeElement, 'mousemove', function (event) { return _this.triClickMouseMove(event); });
+            this.renderer.listen(this.zoomContainer.nativeElement, 'click', function (event) { return _this.toggleTriClick(event); });
+        }
         if (this.enableScrollZoom) {
             // Chrome: 'mousewheel', Firefox: 'DOMMouseScroll', IE: 'onmousewheel'
             this.renderer.listen(this.zoomContainer.nativeElement, 'mousewheel', function (event) { return _this.onMouseWheel(event); });
@@ -547,6 +553,67 @@ var NgxImageZoomComponent = (function () {
         this.zoomFrozen = !this.zoomFrozen;
     };
     /**
+     * Tri-click mode
+     * @param {?} event
+     * @return {?}
+     */
+    NgxImageZoomComponent.prototype.triClickMouseEnter = /**
+     * Tri-click mode
+     * @param {?} event
+     * @return {?}
+     */
+    function (event) {
+        if (!this.zoomFrozen && this.zoomingEnabled) {
+            this.zoomOn(event);
+        }
+    };
+    /**
+     * @return {?}
+     */
+    NgxImageZoomComponent.prototype.triClickMouseLeave = /**
+     * @return {?}
+     */
+    function () {
+        if (!this.zoomFrozen) {
+            this.zoomOff();
+        }
+    };
+    /**
+     * @param {?} event
+     * @return {?}
+     */
+    NgxImageZoomComponent.prototype.triClickMouseMove = /**
+     * @param {?} event
+     * @return {?}
+     */
+    function (event) {
+        if (!this.zoomFrozen) {
+            this.calculateZoomPosition(event);
+        }
+    };
+    /**
+     * @param {?} event
+     * @return {?}
+     */
+    NgxImageZoomComponent.prototype.toggleTriClick = /**
+     * @param {?} event
+     * @return {?}
+     */
+    function (event) {
+        if (this.zoomingEnabled && !this.zoomFrozen) {
+            this.zoomFrozen = true;
+        }
+        else if (!this.zoomingEnabled) {
+            this.zoomingEnabled = true;
+            this.zoomOn(event);
+        }
+        else {
+            this.zoomingEnabled = false;
+            this.zoomFrozen = false;
+            this.zoomOff();
+        }
+    };
+    /**
      * Private helper methods
      * @param {?} event
      * @return {?}
@@ -664,7 +731,7 @@ var NgxImageZoomComponent = (function () {
         this.xRatio = (this.magnifiedWidth - this.thumbWidth) / this.thumbWidth;
         this.yRatio = (this.magnifiedHeight - this.thumbHeight) / this.thumbHeight;
     };
-    NgxImageZoomComponent.validZoomModes = ['hover', 'toggle', 'click', 'hover-freeze', 'hover-click'];
+    NgxImageZoomComponent.validZoomModes = ['hover', 'toggle', 'click', 'hover-freeze', 'hover-click', 'tri-click'];
     NgxImageZoomComponent.decorators = [
         { type: core.Component, args: [{
                     selector: 'ngx-image-zoom',

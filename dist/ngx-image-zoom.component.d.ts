@@ -3,7 +3,7 @@ export interface Coord {
     x: number;
     y: number;
 }
-export declare type ValidZoomMode = 'hover' | 'toggle' | 'click' | 'hover-freeze' | 'hover-click';
+export declare type ValidZoomMode = 'hover' | 'toggle' | 'click' | 'hover-freeze' | 'hover-click' | 'tri-click';
 export declare class NgxImageZoomComponent implements OnInit, OnChanges, AfterViewInit {
     private renderer;
     private static readonly validZoomModes;
@@ -111,6 +111,13 @@ export declare class NgxImageZoomComponent implements OnInit, OnChanges, AfterVi
     private hoverClickMouseLeave(event);
     private hoverClickMouseMove(event);
     private hoverClickMouseClick(event);
+    /**
+     * Tri-click mode
+     */
+    private triClickMouseEnter(event);
+    private triClickMouseLeave();
+    private triClickMouseMove(event);
+    private toggleTriClick(event);
     /**
      * Private helper methods
      */

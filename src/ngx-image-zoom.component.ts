@@ -6,7 +6,7 @@ export interface Coord {
 }
 
 export type ValidZoomMode =
-    'hover' | 'toggle' | 'click' | 'hover-freeze' | 'hover-click';
+    'hover' | 'toggle' | 'click' | 'hover-freeze' | 'hover-click' | 'tri-click';
 
 @Component({
     selector: 'ngx-image-zoom',
@@ -15,7 +15,7 @@ export type ValidZoomMode =
 })
 export class NgxImageZoomComponent implements OnInit, OnChanges, AfterViewInit {
 
-    private static readonly validZoomModes: ValidZoomMode[] = ['hover', 'toggle', 'click', 'hover-freeze', 'hover-click'];
+    private static readonly validZoomModes: ValidZoomMode[] = ['hover', 'toggle', 'click', 'hover-freeze', 'hover-click', 'tri-click'];
 
     @ViewChild('zoomContainer') zoomContainer: ElementRef;
     @ViewChild('imageThumbnail') imageThumbnail: ElementRef;
@@ -161,9 +161,14 @@ export class NgxImageZoomComponent implements OnInit, OnChanges, AfterViewInit {
             this.renderer.listen(this.zoomContainer.nativeElement, 'click', (event) => this.hoverFreezeClick(event));
         } else if (this.zoomMode === 'hover-click') {
             this.renderer.listen(this.zoomContainer.nativeElement, 'mouseenter', (event) => this.hoverClickMouseEnter(event));
-             this.renderer.listen(this.zoomContainer.nativeElement, 'mouseleave', (event) => this.hoverClickMouseLeave(event));
+            this.renderer.listen(this.zoomContainer.nativeElement, 'mouseleave', (event) => this.hoverClickMouseLeave(event));
             this.renderer.listen(this.zoomContainer.nativeElement, 'mousemove', (event) => this.hoverClickMouseMove(event));
             this.renderer.listen(this.zoomContainer.nativeElement, 'click', (event) => this.hoverClickMouseClick(event));
+        } else if (this.zoomMode === 'tri-click') {
+            this.renderer.listen(this.zoomContainer.nativeElement, 'mouseenter', (event) => this.triClickMouseEnter(event));
+            this.renderer.listen(this.zoomContainer.nativeElement, 'mouseleave', () => this.triClickMouseLeave());
+            this.renderer.listen(this.zoomContainer.nativeElement, 'mousemove', (event) => this.triClickMouseMove(event));
+            this.renderer.listen(this.zoomContainer.nativeElement, 'click', (event) => this.toggleTriClick(event));
         }
 
         if (this.enableScrollZoom) {
@@ -357,6 +362,41 @@ export class NgxImageZoomComponent implements OnInit, OnChanges, AfterViewInit {
 
     private hoverClickMouseClick(event: MouseEvent) {
         this.zoomFrozen = !this.zoomFrozen;
+    }
+
+    /**
+     * Tri-click mode
+     */
+
+    private triClickMouseEnter(event: MouseEvent) {
+        if (!this.zoomFrozen && this.zoomingEnabled) {
+            this.zoomOn(event);
+        }
+    }
+
+    private triClickMouseLeave() {
+        if (!this.zoomFrozen) {
+            this.zoomOff();
+        }
+    }
+
+    private triClickMouseMove(event: MouseEvent) {
+        if (!this.zoomFrozen) {
+            this.calculateZoomPosition(event);
+        }
+    }
+
+    private toggleTriClick(event: MouseEvent) {
+        if (this.zoomingEnabled && !this.zoomFrozen) {
+            this.zoomFrozen = true;
+        } else if (!this.zoomingEnabled) {
+            this.zoomingEnabled = true;
+            this.zoomOn(event);
+        } else {
+            this.zoomingEnabled = false;
+            this.zoomFrozen = false;
+            this.zoomOff();
+        }
     }
 
     /**
