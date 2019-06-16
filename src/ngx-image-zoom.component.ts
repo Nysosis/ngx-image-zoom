@@ -23,6 +23,7 @@ export class NgxImageZoomComponent implements OnInit, OnChanges, AfterViewInit {
 
     @Output() onZoomScroll = new EventEmitter<number>();
     @Output() onZoomPosition = new EventEmitter<Coord>();
+    @Output() onZoomStateChange = new EventEmitter<{ state: any }>();
 
     public display: string;
     public fullImageTop: number;
@@ -397,6 +398,12 @@ export class NgxImageZoomComponent implements OnInit, OnChanges, AfterViewInit {
             this.zoomFrozen = false;
             this.zoomOff();
         }
+        this.onZoomStateChange.emit({
+          state: {
+            zoomEnabled: this.zoomingEnabled,
+            zoomFrozen: this.zoomFrozen,
+          }
+        });
     }
 
     /**

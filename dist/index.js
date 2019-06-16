@@ -14,6 +14,7 @@ var NgxImageZoomComponent = (function () {
         this.renderer = renderer;
         this.onZoomScroll = new EventEmitter();
         this.onZoomPosition = new EventEmitter();
+        this.onZoomStateChange = new EventEmitter();
         this.enableLens = false;
         this.lensBorderRadius = 0;
         this.lensWidth = 100;
@@ -609,6 +610,12 @@ var NgxImageZoomComponent = (function () {
             this.zoomFrozen = false;
             this.zoomOff();
         }
+        this.onZoomStateChange.emit({
+            state: {
+              zoomEnabled: this.zoomingEnabled,
+              zoomFrozen: this.zoomFrozen,
+            }
+        });
     };
     /**
      * Private helper methods
@@ -746,6 +753,7 @@ var NgxImageZoomComponent = (function () {
         "fullSizeImage": [{ type: ViewChild, args: ['fullSizeImage',] },],
         "onZoomScroll": [{ type: Output },],
         "onZoomPosition": [{ type: Output },],
+        "onZoomStateChange": [{ type: Output },],
         "setThumbImage": [{ type: Input, args: ['thumbImage',] },],
         "setFullImage": [{ type: Input, args: ['fullImage',] },],
         "setZoomMode": [{ type: Input, args: ['zoomMode',] },],

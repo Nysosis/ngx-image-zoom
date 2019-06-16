@@ -12,6 +12,7 @@ export declare class NgxImageZoomComponent implements OnInit, OnChanges, AfterVi
     fullSizeImage: ElementRef;
     onZoomScroll: EventEmitter<number>;
     onZoomPosition: EventEmitter<Coord>;
+    onZoomStateChange: EventEmitter<{ state: any }>;
     display: string;
     fullImageTop: number;
     fullImageLeft: number;
